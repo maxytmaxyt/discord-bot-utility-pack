@@ -1,0 +1,39 @@
+name: Publish to npm
+
+on:
+  push:
+    branches:
+      - main
+  # Optional: publish when a GitHub Release is created
+  release:
+    types: [published]
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          registry-url: 'https://registry.npmjs.org/'
+
+      - name: Install Dependencies
+        run: npm install
+
+      # Optional: Version automatisch erhöhen
+      # patch = 1.0.0 → 1.0.1
+      - name: Bump Version
+        run: npm version patch --no-git-tag-version
+
+      - name: Publish to npm
+        run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Done
+        run: echo "🎉 Erfolgreich veröffentlicht!"
